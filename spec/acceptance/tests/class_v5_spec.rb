@@ -24,13 +24,21 @@ describe 'kibana class v5' do
           },
         }
 
+        # Kibana 5 bundles a Node.js too old to verify GitHub's TLS chain
+        file { '#{plugin_file}':
+          source => '#{plugin_url}',
+        }
+
         kibana_plugin { '#{plugin}':
           ensure  => 'present',
-          url     => '#{plugin_url}',
+          url     => 'file://#{plugin_file}',
           version => '#{plugin_version}',
+          require => File['#{plugin_file}'],
         }
     MANIFEST
   end
+
+  let(:plugin_file) { "/tmp/#{plugin}-#{plugin_version}.zip" }
 
   let(:plugin_url) do
     "https://github.com/DeanF/#{plugin}/releases/download/v#{plugin_version}/#{plugin}-#{version.split('-').first}.zip"
